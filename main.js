@@ -1,3 +1,42 @@
+const criteriaData = {
+    governance: [
+        {
+            label: 'IPC Validity',
+            logic: 'A "pass" is given if the charity\'s IPC (Institution of a Public Character) status is currently active and not expired. This is a direct check of their official registration status.',
+        },
+        {
+            label: 'Negative News',
+            logic: 'A "pass" is given if an automated scan of news sources finds no significant negative news stories associated with the charity.',
+        }
+    ],
+    financialCapability: [
+        {
+            label: 'Financial Adequacy',
+            logic: 'A "pass" is achieved when the charity\'s total income from the previous financial year is greater than or equal to its total expenditure. This indicates the charity is not operating at a deficit.',
+        },
+        {
+            label: 'Unrestricted Reserves Ratio',
+            logic: 'A "pass" is awarded if the ratio of the charity\'s unrestricted reserves to its previous year\'s operating expenses falls between 1 and 5. This range is considered healthy, suggesting the charity has enough reserves to operate for a reasonable period without being at risk of hoarding funds.',
+        }
+    ],
+    organisationalCapability: [
+        {
+            label: 'Board Competency',
+            logic: 'A "pass" is given if the board members\' collective experience and qualifications, often sourced from public profiles like LinkedIn, meet a predefined competency threshold.',
+        },
+        {
+            label: 'Staff Turnover',
+            logic: 'A "pass" (represented as "Low" turnover) is given if data suggests a stable workforce, which implies a healthy organizational environment. This data would typically come from due diligence questionnaires or public employee review sites.',
+        }
+    ],
+    donorEngagement: [
+        {
+            label: 'Acknowledgement',
+            logic: 'A "pass" (represented as "Found") is given if the system successfully finds a section dedicated to donor acknowledgements on the charity\'s website or in its annual reports.',
+        }
+    ]
+};
+
 class KygApp extends HTMLElement {
     constructor() {
         super();
@@ -32,19 +71,61 @@ class KygApp extends HTMLElement {
                 ],
                 assessmentEngine: {
                     governance: [
-                        { label: 'IPC Validity', value: 'Pass', status: 'success' },
-                        { label: 'Negative News', value: 'Review', status: 'warning' },
+                        { 
+                            label: 'IPC Validity', 
+                            value: 'Pass', 
+                            status: 'success', 
+                            justification: 'Pass if IPC status is active and not expired.',
+                            details: { 'IPC Status': 'Active', 'Expiry Date': '31/12/2024' }
+                        },
+                        { 
+                            label: 'Negative News', 
+                            value: 'Review', 
+                            status: 'warning', 
+                            justification: 'Pass if no significant negative news is found.',
+                            details: { 'Finding': 'Minor negative article found regarding a past project.' }
+                        },
                     ],
                     financialCapability: [
-                        { label: 'Financial Adequacy', value: 'Pass', status: 'success' },
-                        { label: 'Unrestricted Reserves', value: 'Pass', status: 'success' },
+                        {
+                            label: 'Financial Adequacy',
+                            value: 'Pass',
+                            status: 'success',
+                            justification: 'Pass if income is greater than or equal to expenditure.',
+                            details: { 'Total Income': 520000, 'Total Expenditure': 500000 }
+                        },
+                        {
+                            label: 'Unrestricted Reserves',
+                            value: 'Pass',
+                            status: 'success',
+                            justification: 'Pass if reserves-to-expenditure ratio is between 1 and 5.',
+                            details: { 'Unrestricted Reserves': 750000, 'Operating Expenditure': 500000, 'Ratio': 1.5 }
+                        },
                     ],
                     organisationalCapability: [
-                        { label: 'Board Competency', value: 'Pass', status: 'success' },
-                        { label: 'Staff Turnover', value: 'Low', status: 'success' },
+                        { 
+                            label: 'Board Competency', 
+                            value: 'Pass', 
+                            status: 'success', 
+                            justification: 'Pass if board competency score is above a set threshold.',
+                            details: { 'Finding': 'Board members have an average of 10+ years of relevant experience.' } 
+                        },
+                        { 
+                            label: 'Staff Turnover', 
+                            value: 'Low', 
+                            status: 'success', 
+                            justification: 'A low turnover rate implies a stable organization.',
+                            details: { 'Finding': 'Data from public sources suggests a low staff turnover rate.' }
+                        },
                     ],
                     donorEngagement: [
-                        { label: 'Acknowledgement', value: 'Found', status: 'success' },
+                        { 
+                            label: 'Acknowledgement', 
+                            value: 'Found', 
+                            status: 'success', 
+                            justification: 'Pass if a donor acknowledgement section is found on the website or in annual reports.',
+                            details: { 'Finding': 'Donor acknowledgement page found on the charity\'s website.' }
+                        },
                     ],
                 },
                 reporting: {
@@ -71,6 +152,9 @@ class KygApp extends HTMLElement {
                 <header class="header">
                     <h1>Enhanced Know-Your-Grantee (KYG) Analytics</h1>
                 </header>
+
+                <kyg-criteria-guide data='${JSON.stringify(criteriaData)}'></kyg-criteria-guide>
+
                 <main class="main-content">
                     <section class="form-section">
                         <div class="form-group">
@@ -135,7 +219,46 @@ class KygApp extends HTMLElement {
     }
 }
 
-customElements.define('kgy-app', KygApp);
+customElements.define('kyg-app', KygApp);
+
+class KygCriteriaGuide extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        this.render();
+    }
+
+    render() {
+        const data = JSON.parse(this.getAttribute('data') || 'null');
+        if (!data) return;
+
+        this.shadowRoot.innerHTML = `
+            <style>
+                @import url('style.css');
+            </style>
+            <section class="criteria-guide">
+                <h2>Evaluation Criteria</h2>
+                <div class="criteria-grid">
+                    ${Object.keys(data).map(track => `
+                        <div class="criteria-track">
+                            <h3>${track.charAt(0).toUpperCase() + track.slice(1).replace(/([A-Z])/g, ' $1')}</h3>
+                            ${data[track].map(item => `
+                                <div class="criteria-item">
+                                    <h4>${item.label}</h4>
+                                    <p>${item.logic}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+        `;
+    }
+}
+customElements.define('kyg-criteria-guide', KygCriteriaGuide);
 
 class KygAssessmentEngine extends HTMLElement {
     constructor() {
@@ -160,9 +283,30 @@ class KygAssessmentEngine extends HTMLElement {
                     <div class="assessment-track">
                         <h3>${track.charAt(0).toUpperCase() + track.slice(1).replace(/([A-Z])/g, ' $1')}</h3>
                         ${data[track].map(item => `
-                            <div class="assessment-item">
-                                <span class="assessment-label">${item.label}</span>
-                                <span class="assessment-value status ${item.status}">${item.value}</span>
+                            <div class="assessment-item-wrapper">
+                                <div class="assessment-item">
+                                    <div class="assessment-label-container">
+                                        <span class="assessment-label">${item.label}</span>
+                                        <div class="tooltip-container">
+                                            <span class="tooltip-icon">?</span>
+                                            <div class="tooltip-text">${item.justification}</div>
+                                        </div>
+                                    </div>
+                                    <span class="assessment-value status ${item.status}">${item.value}</span>
+                                </div>
+                                ${item.details ? `
+                                    <div class="assessment-details">
+                                        ${Object.entries(item.details).map(([key, value]) => {
+                                            let formattedValue = value;
+                                            if (typeof value === 'number' && key !== 'Ratio') {
+                                                formattedValue = `$${value.toLocaleString()}`;
+                                            } else if (key === 'Ratio') {
+                                                formattedValue = value.toFixed(2);
+                                            }
+                                            return `<div class="detail-entry"><span class="detail-label">${key}:</span> <span class="detail-value">${formattedValue}</span></div>`;
+                                        }).join('')}
+                                    </div>
+                                ` : ''}
                             </div>
                         `).join('')}
                     </div>
