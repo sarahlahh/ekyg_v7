@@ -14,7 +14,9 @@ This document outlines the design and implementation of the Know-Your-Grantee (K
 
 *   **Interactive UI:** The application features a dynamic and interactive user interface, with elements that respond to user input and provide real-time feedback.
 
-*   **Evaluation Criteria:** The application now includes a detailed "Evaluation Criteria" section that provides a transparent overview of the assessment logic. This guide outlines how each metric is calculated and what constitutes a "pass" or "review" result.
+*   **Evaluation Criteria:** The application now includes a detailed "Evaluation Criteria" section that provides a transparent overview of the assessment logic. This guide outlines how each metric is calculated and what constitutes a "pass" or "review" result. The criteria section is correctly placed under the "Charity Profile."
+
+*   **Automated Website Analysis (Donor Engagement):** The application automatically scrapes the provided charity website URL to search for keywords related to donor acknowledgement. The "Donor Engagement" assessment is updated based on the presence or absence of these keywords.
 
 ## Current Plan
 

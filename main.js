@@ -2,37 +2,37 @@ const criteriaData = {
     governance: [
         {
             label: 'IPC Validity',
-            logic: 'A "pass" is given if the charity\'s IPC (Institution of a Public Character) status is currently active and not expired. This is a direct check of their official registration status.',
+            logic: "A 'pass' is given if the charity's IPC (Institution of a Public Character) status is currently active and not expired. This is a direct check of their official registration status.",
         },
         {
             label: 'Negative News',
-            logic: 'A "pass" is given if an automated scan of news sources finds no significant negative news stories associated with the charity.',
+            logic: "A 'pass' is given if an automated scan of news sources finds no significant negative news stories associated with the charity.",
         }
     ],
     financialCapability: [
         {
             label: 'Financial Adequacy',
-            logic: 'A "pass" is achieved when the charity\'s total income from the previous financial year is greater than or equal to its total expenditure. This indicates the charity is not operating at a deficit.',
+            logic: "A 'pass' is achieved when the charity's total income from the previous financial year is greater than or equal to its total expenditure. This indicates the charity is not operating at a deficit.",
         },
         {
             label: 'Unrestricted Reserves Ratio',
-            logic: 'A "pass" is awarded if the ratio of the charity\'s unrestricted reserves to its previous year\'s operating expenses falls between 1 and 5. This range is considered healthy, suggesting the charity has enough reserves to operate for a reasonable period without being at risk of hoarding funds.',
+            logic: "A 'pass' is awarded if the ratio of the charity's unrestricted reserves to its previous year's operating expenses falls between 1 and 5. This range is considered healthy, suggesting the charity has enough reserves to operate for a reasonable period without being at risk of hoarding funds.",
         }
     ],
     organisationalCapability: [
         {
             label: 'Board Competency',
-            logic: 'A "pass" is given if the board members\' collective experience and qualifications, often sourced from public profiles like LinkedIn, meet a predefined competency threshold.',
+            logic: "A 'pass' is given if the board members' collective experience and qualifications, often sourced from public profiles like LinkedIn, meet a predefined competency threshold.",
         },
         {
             label: 'Staff Turnover',
-            logic: 'A "pass" (represented as "Low" turnover) is given if data suggests a stable workforce, which implies a healthy organizational environment. This data would typically come from due diligence questionnaires or public employee review sites.',
+            logic: "A 'pass' (represented as 'Low' turnover) is given if data suggests a stable workforce, which implies a healthy organizational environment. This data would typically come from due diligence questionnaires or public employee review sites.",
         }
     ],
     donorEngagement: [
         {
             label: 'Acknowledgement',
-            logic: 'A "pass" (represented as "Found") is given if the system successfully finds a section dedicated to donor acknowledgements on the charity\'s website or in its annual reports.',
+            logic: "A 'pass' (represented as 'Found') is given if the system successfully finds a section dedicated to donor acknowledgements on the charity's website or in its annual reports.",
         }
     ]
 };
@@ -53,92 +53,129 @@ class KygApp extends HTMLElement {
         this.retrieving = true;
         this.render();
 
-        setTimeout(() => {
-            this.retrieving = false;
+        const urlInput = this.shadowRoot.getElementById('links').value.trim();
+        const url = urlInput.split('\n')[0];
 
-            const mockData = {
-                charityProfile: {
-                    registrationDate: '15/03/2012',
-                    charityStatus: 'Registered',
-                    ipcStatus: 'Active',
-                    ipcExpiry: '31/12/2024',
-                },
-                qaDashboard: [
-                    { label: 'Registry Data', status: 'success' },
-                    { label: 'Financials', status: 'success' },
-                    { label: 'News Scan', status: 'warning' },
-                    { label: 'Website Scrape', status: 'success' },
+        const mockData = {
+            charityProfile: {
+                registrationDate: '15/03/2012',
+                charityStatus: 'Registered',
+                ipcStatus: 'Active',
+                ipcExpiry: '31/12/2024',
+            },
+            qaDashboard: [
+                { label: 'Registry Data', status: 'success' },
+                { label: 'Financials', status: 'success' },
+                { label: 'News Scan', status: 'warning' },
+                { label: 'Website Scrape', status: 'pending' },
+            ],
+            assessmentEngine: {
+                governance: [
+                    { 
+                        label: 'IPC Validity', 
+                        value: 'Pass', 
+                        status: 'success', 
+                        justification: 'Pass if IPC status is active and not expired.',
+                        details: { 'IPC Status': 'Active', 'Expiry Date': '31/12/2024' }
+                    },
+                    { 
+                        label: 'Negative News', 
+                        value: 'Review', 
+                        status: 'warning', 
+                        justification: 'Pass if no significant negative news is found.',
+                        details: { 'Finding': 'Minor negative article found regarding a past project.' }
+                    },
                 ],
-                assessmentEngine: {
-                    governance: [
-                        { 
-                            label: 'IPC Validity', 
-                            value: 'Pass', 
-                            status: 'success', 
-                            justification: 'Pass if IPC status is active and not expired.',
-                            details: { 'IPC Status': 'Active', 'Expiry Date': '31/12/2024' }
-                        },
-                        { 
-                            label: 'Negative News', 
-                            value: 'Review', 
-                            status: 'warning', 
-                            justification: 'Pass if no significant negative news is found.',
-                            details: { 'Finding': 'Minor negative article found regarding a past project.' }
-                        },
-                    ],
-                    financialCapability: [
-                        {
-                            label: 'Financial Adequacy',
-                            value: 'Pass',
-                            status: 'success',
-                            justification: 'Pass if income is greater than or equal to expenditure.',
-                            details: { 'Total Income': 520000, 'Total Expenditure': 500000 }
-                        },
-                        {
-                            label: 'Unrestricted Reserves',
-                            value: 'Pass',
-                            status: 'success',
-                            justification: 'Pass if reserves-to-expenditure ratio is between 1 and 5.',
-                            details: { 'Unrestricted Reserves': 750000, 'Operating Expenditure': 500000, 'Ratio': 1.5 }
-                        },
-                    ],
-                    organisationalCapability: [
-                        { 
-                            label: 'Board Competency', 
-                            value: 'Pass', 
-                            status: 'success', 
-                            justification: 'Pass if board competency score is above a set threshold.',
-                            details: { 'Finding': 'Board members have an average of 10+ years of relevant experience.' } 
-                        },
-                        { 
-                            label: 'Staff Turnover', 
-                            value: 'Low', 
-                            status: 'success', 
-                            justification: 'A low turnover rate implies a stable organization.',
-                            details: { 'Finding': 'Data from public sources suggests a low staff turnover rate.' }
-                        },
-                    ],
-                    donorEngagement: [
-                        { 
-                            label: 'Acknowledgement', 
-                            value: 'Found', 
-                            status: 'success', 
-                            justification: 'Pass if a donor acknowledgement section is found on the website or in annual reports.',
-                            details: { 'Finding': 'Donor acknowledgement page found on the charity\'s website.' }
-                        },
-                    ],
-                },
-                reporting: {
-                    score: 9.1,
-                    recommendation: 'Proceed',
-                    riskAlerts: [
-                        { message: 'Negative news requires review', status: 'warning' },
-                    ],
-                },
-            };
+                financialCapability: [
+                    {
+                        label: 'Financial Adequacy',
+                        value: 'Pass',
+                        status: 'success',
+                        justification: 'Pass if income is greater than or equal to expenditure.',
+                        details: { 'Total Income': 520000, 'Total Expenditure': 500000 }
+                    },
+                    {
+                        label: 'Unrestricted Reserves',
+                        value: 'Pass',
+                        status: 'success',
+                        justification: 'Pass if reserves-to-expenditure ratio is between 1 and 5.',
+                        details: { 'Unrestricted Reserves': 750000, 'Operating Expenditure': 500000, 'Ratio': 1.5 }
+                    },
+                ],
+                organisationalCapability: [
+                    { 
+                        label: 'Board Competency', 
+                        value: 'Pass', 
+                        status: 'success', 
+                        justification: 'Pass if board competency score is above a set threshold.',
+                        details: { 'Finding': 'Board members have an average of 10+ years of relevant experience.' } 
+                    },
+                    { 
+                        label: 'Staff Turnover', 
+                        value: 'Low', 
+                        status: 'success', 
+                        justification: 'A low turnover rate implies a stable organization.',
+                        details: { 'Finding': 'Data from public sources suggests a low staff turnover rate.' }
+                    },
+                ],
+                donorEngagement: [
+                    { 
+                        label: 'Acknowledgement', 
+                        value: 'Pending', 
+                        status: 'pending', 
+                        justification: "Pass if a donor acknowledgement section is found on the website or in annual reports.",
+                        details: { 'Finding': '' }
+                    },
+                ],
+            },
+            reporting: {
+                score: 9.1,
+                recommendation: 'Proceed',
+                riskAlerts: [
+                    { message: 'Negative news requires review', status: 'warning' },
+                ],
+            },
+        };
 
-            this.render(mockData);
-        }, 2000);
+        if (url) {
+            fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok.');
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const bodyText = doc.body.textContent.toLowerCase();
+                    const keywords = ['donor', 'acknowledgement', 'supporters', 'patrons', 'donations'];
+                    const found = keywords.some(keyword => bodyText.includes(keyword));
+
+                    const donorEngagementData = mockData.assessmentEngine.donorEngagement[0];
+                    if (found) {
+                        donorEngagementData.value = 'Found';
+                        donorEngagementData.status = 'success';
+                        donorEngagementData.details.Finding = 'Donor acknowledgement section or keywords were found on the website.';
+                    } else {
+                        donorEngagementData.value = 'Not Found';
+                        donorEngagementData.status = 'warning';
+                        donorEngagementData.details.Finding = 'No clear donor acknowledgement section or keywords were found on the website.';
+                    }
+                    mockData.qaDashboard.find(item => item.label === 'Website Scrape').status = 'success';
+                    this.retrieving = false;
+                    this.render(mockData);
+                })
+                .catch(error => {
+                    console.error('Error scraping website:', error);
+                    mockData.qaDashboard.find(item => item.label === 'Website Scrape').status = 'error';
+                    this.retrieving = false;
+                    this.render(mockData);
+                });
+        } else {
+            setTimeout(() => {
+                this.retrieving = false;
+                this.render(mockData);
+            }, 500);
+        }
     }
 
     render(data = {}) {
@@ -153,8 +190,6 @@ class KygApp extends HTMLElement {
                     <h1>Enhanced Know-Your-Grantee (KYG) Analytics</h1>
                 </header>
 
-                <kyg-criteria-guide data='${JSON.stringify(criteriaData)}'></kyg-criteria-guide>
-
                 <main class="main-content">
                     <section class="form-section">
                         <div class="form-group">
@@ -167,7 +202,7 @@ class KygApp extends HTMLElement {
                         </div>
                         <div class="form-group">
                             <label for="links">Links</label>
-                            <textarea id="links" rows="4" placeholder="Paste relevant links here"></textarea>
+                            <textarea id="links" rows="4" placeholder="Paste a charity website URL here"></textarea>
                         </div>
                         <button class="btn" id="submit-btn" ${this.retrieving ? 'disabled' : ''}>
                             ${this.retrieving ? '<span class="loader"></span> Retrieving...' : 'Retrieve and Validate'}
@@ -208,6 +243,7 @@ class KygApp extends HTMLElement {
                         </div>
                     ` : ''}
                 </section>
+                <kyg-criteria-guide data='${JSON.stringify(criteriaData)}'></kyg-criteria-guide>
                 ${assessmentEngine ? `<kyg-assessment-engine data='${JSON.stringify(assessmentEngine)}'></kyg-assessment-engine>` : ''}
                 ${reporting ? `<kyg-reporting data='${JSON.stringify(reporting)}'></kyg-reporting>` : ''}
             </div>
